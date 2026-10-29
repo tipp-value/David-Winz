@@ -1,30 +1,25 @@
-# 🏖️ Strand-Chaos
+# 🎮 Spiele mit Winz & Zeller
 
-Ein kleines Strandspiel für den Browser – mit den beiden Jungs als Hauptfiguren.
+Zwei Browserspiele mit Winz und Zeller als Hauptfiguren. Jedes Spiel ist eine einzige HTML-Datei (die Bilder stecken mit drin) – einfach im Browser öffnen, am Handy oder am PC.
 
-**Spielen:** `index.html` im Browser öffnen (Handy oder PC). Alles steckt in dieser einen Datei, auch die Bilder.
+## 🔥❄️ Winz & Zeller – Feuer & Eis (`winz-und-zeller.html`)
 
-## So geht's
+Ein Jump & Run im Stil von „Fireboy & Watergirl“: Winz ist Feuer, Zeller ist Eis. Beide müssen zu ihren Türen – und das geht nur zusammen.
 
-- Fang die guten Sachen: 🍦 Eis (+10), 🍉 Melone (+15), 🧴 Sonnencreme (kühlt den Sonnenbrand), 🕶️ Sonnenbrille (kurz unverwundbar), ❤️ Extra-Leben
-- Pass auf: 🥥 Kokosnüsse, Möwen-Kleckse von oben und 🦀 Krabben am Boden (drüberspringen!)
-- Der ☀️ Sonnenbrand-Balken steigt ständig – ist er voll, kostet das ein Leben. Also: eincremen!
-- Alle 20 Sekunden steigt das Level und alles wird schneller.
-
-## Modi
-
-- **Allein spielen:** Du wählst eine Figur, die andere sitzt unterm Sonnenschirm und kommentiert.
-- **Zu zweit:** Beide gleichzeitig am selben Gerät – wer mehr Punkte holt, gewinnt.
-
-## Steuerung
+- **Winz 🔥** läuft durch Lava, stirbt aber im Wasser. **Zeller ❄️** genau umgekehrt. Grünes Gift und Stacheln sind für beide tödlich.
+- Sammelt eure Kristalle, drückt Schalter, legt Hebel um, schiebt Kisten, fahrt Aufzug, springt Krabben und Möwen auf den Kopf.
+- **11 Level**, im letzten wartet **König Krabbe** als Endboss – Feuerbälle tun nur Zeller weh, Eiszapfen nur Winz.
+- Pro Level gibt es bis zu 3 Sterne: geschafft, alle Kristalle, schnell genug. Der Fortschritt wird im Browser gespeichert.
 
 | | Laufen | Springen |
 |---|---|---|
-| Allein (Tastatur) | ← → oder A D | ↑, W oder Leertaste |
-| Zu zweit – links | A D | W |
-| Zu zweit – rechts | ← → | ↑ |
-| Handy | Knöpfe ◀ ▶ | Knopf ▲ |
+| Zu zweit – Winz | A D | W |
+| Zu zweit – Zeller | ← → | ↑ |
+| Allein | ← → oder A D | ↑, W oder Leertaste – **Tab** wechselt die Figur |
+| Handy (quer halten) | Knöpfe ◀ ▶ | Knopf ▲ (allein: ⇄ zum Wechseln) |
 
-Zu zweit spielt eine Person mit WASD und die andere mit den Pfeiltasten. Wer welche Tasten bekommt, stellst du im Menü mit „⇄ Tasten tauschen“ ein. In der Luft landest du mit S bzw. ↓ schneller.
+Wer welche Tasten bekommt, lässt sich im Menü mit „⇄ Tasten tauschen“ ändern. `R` startet das Level neu, `P` pausiert, `M` schaltet den Ton aus.
 
-`P` oder `Esc` pausiert, `M` schaltet den Ton aus. Die Namen kann man im Menü ändern.
+## 🏖️ Strand-Chaos (`index.html`)
+
+Fang die guten Sachen: 🍦 Eis, 🍉 Melone, 🧴 Sonnencreme, 🕶️ Sonnenbrille, ❤️ Extra-Leben. Pass auf 🥥 Kokosnüsse, Möwen-Kleckse und 🦀 Krabben auf – und darauf, dass der ☀️ Sonnenbrand-Balken nicht voll wird. Allein oder zu zweit (WASD gegen Pfeiltasten).
