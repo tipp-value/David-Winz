@@ -85,6 +85,17 @@
   .hinweis { margin: 12px 0 0; font-size: 14px; line-height: 1.45; opacity: 0.8; }
   .rekord { margin: 10px 0 0; font-weight: 600; }
 
+  .tasten-box { margin-top: 8px; }
+  .tasten-titel { display: block; font-size: 12px; opacity: 0.7; }
+  .tasten { display: flex; justify-content: center; gap: 4px; margin-top: 3px; }
+  kbd {
+    min-width: 26px; padding: 2px 6px; font: inherit; font-size: 14px; font-weight: 700;
+    color: var(--text); background: #fff; border: 1px solid #d9cfbb; border-bottom-width: 3px; border-radius: 7px;
+  }
+  .knopf.klein { padding: 7px 14px; font-size: 15px; color: var(--text); background: #efe6d2; box-shadow: 0 3px 0 #d9cfbb; }
+  .knopf.klein:active { box-shadow: 0 1px 0 #d9cfbb; }
+  body.touch [data-nur-tastatur] { display: none; }
+
   .ergebnis { display: flex; flex-direction: column; gap: 10px; margin: 14px 0 4px; }
   .ergebnis-zeile {
     display: flex; align-items: center; gap: 12px; padding: 8px 14px;
@@ -131,13 +142,24 @@
       <div class="figur gewaehlt" data-figur="0">
         <img id="bild-0" alt="Figur 1">
         <input id="name-0" maxlength="12" aria-label="Name von Figur 1">
+        <div class="tasten-box" data-nur-tastatur>
+          <span class="tasten-titel">Zu zweit:</span>
+          <div class="tasten" id="tasten-0"></div>
+        </div>
       </div>
       <div class="figur" data-figur="1">
         <img id="bild-1" alt="Figur 2">
         <input id="name-1" maxlength="12" aria-label="Name von Figur 2">
+        <div class="tasten-box" data-nur-tastatur>
+          <span class="tasten-titel">Zu zweit:</span>
+          <div class="tasten" id="tasten-1"></div>
+        </div>
       </div>
     </div>
     <p class="hinweis" style="margin-top:4px">Tippe ein Gesicht an, um es auszuwählen – und den Namen, um ihn zu ändern.</p>
+    <div class="knoepfe" data-nur-tastatur style="margin-top:8px">
+      <button class="knopf klein" id="tauschen">⇄ Tasten tauschen</button>
+    </div>
 
     <div class="knoepfe">
       <button class="knopf" id="start-1">▶ Allein spielen</button>
@@ -347,17 +369,20 @@ let kumpel = null, banner = null;
 let zeit = 0, animZeit = 0, level = 1;
 let spawnIn = 0, moeweIn = 0, krabbeIn = 0, endeIn = 0;
 let blitz = 0, beben = 0;
-let touchAktiv = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+let touchAktiv = window.matchMedia('(pointer: coarse)').matches;
+let tausch = false;   // zu zweit: true = Figur 2 spielt links mit WASD
 
 const gedrueckt = new Set();
 const touch = [{ links: false, rechts: false, sprung: false }, { links: false, rechts: false, sprung: false }];
 const sprungPuffer = [0, 0];   // merkt sich kurze Sprung-Drücker für ein paar Frames
 
+// Zu zweit spielt Spieler 0 (links) mit WASD, Spieler 1 (rechts) mit den Pfeiltasten.
 const BELEGUNG = {
-  einzel: { links: ['ArrowLeft', 'KeyA'], rechts: ['ArrowRight', 'KeyD'], sprung: ['ArrowUp', 'KeyW', 'Space'] },
-  p0: { links: ['KeyA'], rechts: ['KeyD'], sprung: ['KeyW', 'Space'] },
-  p1: { links: ['ArrowLeft'], rechts: ['ArrowRight'], sprung: ['ArrowUp'] },
+  einzel: { links: ['ArrowLeft', 'KeyA'], rechts: ['ArrowRight', 'KeyD'], sprung: ['ArrowUp', 'KeyW', 'Space'], runter: ['ArrowDown', 'KeyS'] },
+  p0: { links: ['KeyA'], rechts: ['KeyD'], sprung: ['KeyW', 'Space'], runter: ['KeyS'] },
+  p1: { links: ['ArrowLeft'], rechts: ['ArrowRight'], sprung: ['ArrowUp'], runter: ['ArrowDown'] },
 };
+const TASTEN_TEXT = ['W A S D', '← ↑ ↓ →'];
 
 function hoechsterSonnenbrand() {
   return Math.max(0, ...spieler.filter(p => !p.raus).map(p => p.sonne));
@@ -574,6 +599,17 @@ function zeichneSpieler(p) {
   if (modus === 2 && !p.raus && !p.blase) {
     ctx.fillStyle = FARBEN[p.index];
     const y = p.y - 196 + Math.sin(animZeit * 5) * 3;
+    if (!touchAktiv && zeit < 6) {
+      ctx.font = `700 15px ${SCHRIFT}`;
+      const w = ctx.measureText(TASTEN_TEXT[p.index]).width + 18;
+      rundRechteck(ctx, p.x - w / 2, y - 26, w, 24, 12);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(TASTEN_TEXT[p.index], p.x, y - 13.5);
+      return;
+    }
     ctx.beginPath();
     ctx.moveTo(p.x - 8, y - 10);
     ctx.lineTo(p.x + 8, y - 10);
@@ -867,7 +903,7 @@ function eingabe(p) {
   const an = codes => codes.some(c => gedrueckt.has(c));
   return {
     links: an(b.links) || t.links, rechts: an(b.rechts) || t.rechts,
-    sprung: an(b.sprung) || t.sprung || sprungPuffer[p.index] > 0,
+    sprung: an(b.sprung) || t.sprung || sprungPuffer[p.index] > 0, runter: an(b.runter),
   };
 }
 
@@ -1027,7 +1063,7 @@ function spielerBewegen(p, dt) {
     }
   }
 
-  const e = p.raus || p.betaeubt > 0 ? { links: false, rechts: false, sprung: false } : eingabe(p);
+  const e = p.raus || p.betaeubt > 0 ? { links: false, rechts: false, sprung: false, runter: false } : eingabe(p);
   const ziel = (e.rechts - e.links) * TEMPO;
   p.vx = annaehern(p.vx, ziel, (ziel ? BESCHLEUNIGUNG : BREMSE) * dt);
   if (ziel) p.blick = Math.sign(ziel);
@@ -1038,7 +1074,7 @@ function spielerBewegen(p, dt) {
     p.amBoden = false;
     SOUND.sprung();
   }
-  p.vy += SCHWERKRAFT * dt;
+  p.vy += SCHWERKRAFT * (e.runter && !p.amBoden ? 2.5 : 1) * dt;
   p.x = begrenzen(p.x + p.vx * dt, 34, B - 34);
   p.y += p.vy * dt;
   if (p.y >= boden) { p.y = boden; p.vy = 0; p.amBoden = true; }
@@ -1308,7 +1344,7 @@ function spielStarten(m) {
   steuerungEl.classList.toggle('versteckt', !touchAktiv);
   groesseAnpassen();
 
-  const figuren = modus === 1 ? [FIGUREN[auswahl]] : FIGUREN;
+  const figuren = modus === 1 ? [FIGUREN[auswahl]] : tausch ? [FIGUREN[1], FIGUREN[0]] : FIGUREN;
   spieler = figuren.map((f, i) => neuerSpieler(f, i, modus === 1 ? B / 2 : B * (i === 0 ? 0.3 : 0.7)));
   kumpel = modus === 1 ? { fig: FIGUREN[1 - auswahl], blase: null, naechster: zufall(3, 5) } : null;
   sachen = []; moewen = []; krabben = []; teilchen = []; texte = [];
@@ -1392,9 +1428,15 @@ function menueAktualisieren() {
   $('start-1').textContent = `▶ Allein spielen (${name})`;
   const rekord = speicher.lesen('strandchaos.rekord', null);
   $('rekord').textContent = rekord && rekord.punkte ? `🏆 Rekord: ${rekord.punkte} Punkte (${rekord.name})` : '';
+  document.body.classList.toggle('touch', touchAktiv);
+  FIGUREN.forEach((f, i) => {
+    const mitWasd = (i === 0) !== tausch;
+    $(`tasten-${i}`).innerHTML = TASTEN_TEXT[mitWasd ? 0 : 1].split(' ').map(t => `<kbd>${t}</kbd>`).join('');
+  });
   $('steuerung-hinweis').innerHTML = touchAktiv
     ? 'Steuerung: Knöpfe unten am Bildschirm – ◀ ▶ laufen, ▲ springen.<br>Zu zweit: links Spieler 1, rechts Spieler 2.'
-    : 'Steuerung: ← → laufen, ↑ oder Leertaste springen, P = Pause.<br>Zu zweit: Spieler 1 mit A D W, Spieler 2 mit ← → ↑.';
+    : 'Allein: Pfeiltasten oder WASD – ↑/W springen, ↓/S schneller landen, P = Pause.<br>'
+      + 'Zu zweit: eine Person mit WASD, die andere mit den Pfeiltasten (siehe oben).';
 }
 
 function init() {
@@ -1412,6 +1454,7 @@ function init() {
     $(`name-${i}`).placeholder = f.standardName;
   });
   auswahl = speicher.lesen('strandchaos.auswahl', 0) === 1 ? 1 : 0;
+  tausch = speicher.lesen('strandchaos.tausch', false) === true;
 
   document.querySelectorAll('.figur').forEach(el => {
     el.addEventListener('click', () => {
@@ -1421,6 +1464,11 @@ function init() {
     });
   });
   for (let i = 0; i < 2; i++) $(`name-${i}`).addEventListener('input', menueAktualisieren);
+  $('tauschen').addEventListener('click', () => {
+    tausch = !tausch;
+    speicher.schreiben('strandchaos.tausch', tausch);
+    menueAktualisieren();
+  });
   $('start-1').addEventListener('click', () => spielStarten(1));
   $('start-2').addEventListener('click', () => spielStarten(2));
   $('weiter').addEventListener('click', weiter);

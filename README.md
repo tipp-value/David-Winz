@@ -21,8 +21,10 @@ Ein kleines Strandspiel für den Browser – mit den beiden Jungs als Hauptfigur
 | | Laufen | Springen |
 |---|---|---|
 | Allein (Tastatur) | ← → oder A D | ↑, W oder Leertaste |
-| Zu zweit – Spieler 1 | A D | W |
-| Zu zweit – Spieler 2 | ← → | ↑ |
+| Zu zweit – links | A D | W |
+| Zu zweit – rechts | ← → | ↑ |
 | Handy | Knöpfe ◀ ▶ | Knopf ▲ |
+
+Zu zweit spielt eine Person mit WASD und die andere mit den Pfeiltasten. Wer welche Tasten bekommt, stellst du im Menü mit „⇄ Tasten tauschen“ ein. In der Luft landest du mit S bzw. ↓ schneller.
 
 `P` oder `Esc` pausiert, `M` schaltet den Ton aus. Die Namen kann man im Menü ändern.
